@@ -31,10 +31,10 @@ app.use((req, res, next) => {
 
 // mongodb connect
 mongoose
-  .connect(
-    "mongodb+srv://yannclsgo:Openclassroomsp7@groupomania.zpi25.mongodb.net/?retryWrites=true&w=majority",
-    { useNewUrlParser: true, useUnifiedTopology: true }
-  )
+  .connect(`${process.env.MONGO_DB_ACCESS}`, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
   .then(() => console.log("Connexion à MongoDB réussie !"))
   .catch(() => console.log("Connexion à MongoDB échouée !"));
 

@@ -1,8 +1,12 @@
 const note = require("../models/Note");
 const fs = require("fs");
+// const user = require("../models/User");
 
 //  afficher les publications
 exports.getAllNote = async (req, res, next) => {
+  // if (!req.userId) {
+  //   res.status(401).json({ message: "vous n'êtes pas authentifié" });
+  // }
   const notes = await note.find();
   if (!notes) return res.status(204).json({ message: "aucun post trouvé" });
   res.json(notes);
@@ -15,19 +19,33 @@ exports.getOneNote = async (req, res, next) => {
   res.json(Note);
 };
 
+// afficher mes publications
+exports.getMyNotes = async (req, res, next) => {
+  const myNotes = await note.find({ userId: req.body.userId });
+  if (!myNotes)
+    return res
+      .status(204)
+      .json({ message: "les ressources sont inexistantes" });
+  res.json(myNotes);
+};
+
 //créer une publication
 exports.createNote = async (req, res, next) => {
   if (!req.userId || !req.body?.description) {
     return res.status(400).json({ message: "Votre demande est incomplète" });
   }
   try {
+    const file = req.file;
+    console.log("file", file);
     delete note._id;
     const result = await note.create({
       userId: req.userId,
       description: req.body.description,
-      // imageUrl: `${req.protocol}://${req.get("host")}/images/${
-      //   req.file.filename
-      // }`,
+      like: 0,
+      usersLiked: [],
+      imageUrl: `${req.protocol}://${req.get("host")}/images/${
+        req.file.filename
+      }`,
     });
     res.status(201).json({ message: "Publication enregistrée" });
     console.log(result);

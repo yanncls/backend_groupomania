@@ -108,15 +108,22 @@ exports.getOneUser = async (req, res, next) => {
 
 // Ajout d'informations nom et prénom
 exports.modifyProfil = async (req, res, next) => {
-  const myUser = req.query.userId;
-  console.log("myUser", myUser);
+  // const myUser = req.params.userId;
+  // console.log("myUser", myUser);
+  if (!req?.params?.id) {
+    return res
+      .status(400)
+      .json({ message: "L'ID de l'utilisateur est nnécessaire" });
+  }
+  const User = await user.findOne({ _id: req.params.id }).exec();
+  console.log("user is", User);
   try {
-    const User = await user.findOne({ _id: req.query.userId });
-    console.log("user is", User);
     // vérification de l'utilisateur dans le backend pour accéder aux modifs ?
     // à faire
     if (req.body?.name) User.name = req.body.name;
+    if (req.body?.email) User.email = req.body.email;
     if (req.body?.surname) User.surname = req.body.surname;
+    if (req.body?.bio) User.bio = req.body.bio;
     const result = await User.save();
     res.json(result);
   } catch (error) {

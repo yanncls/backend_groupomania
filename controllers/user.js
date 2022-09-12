@@ -110,12 +110,13 @@ exports.getOneUser = async (req, res, next) => {
 exports.modifyProfil = async (req, res, next) => {
   // const myUser = req.params.userId;
   // console.log("myUser", myUser);
+  const User = await user.findOne({ _id: req.params.id }).exec();
   if (!req?.params?.id) {
     return res
       .status(400)
       .json({ message: "L'ID de l'utilisateur est nnécessaire" });
   }
-  const User = await user.findOne({ _id: req.params.id }).exec();
+
   console.log("user is", User);
   try {
     // vérification de l'utilisateur dans le backend pour accéder aux modifs ?
@@ -125,6 +126,7 @@ exports.modifyProfil = async (req, res, next) => {
     if (req.body?.surname) User.surname = req.body.surname;
     if (req.body?.bio) User.bio = req.body.bio;
     const result = await User.save();
+    console.log("result iss", result);
     res.json(result);
   } catch (error) {
     res.status(400).json({ message: "gros probleme" });

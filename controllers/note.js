@@ -21,7 +21,8 @@ exports.getOneNote = async (req, res, next) => {
 
 // afficher mes publications
 exports.getMyNotes = async (req, res, next) => {
-  const myNotes = await note.find({ userId: req.body.userId });
+  // recupere l'id passé en params dans l'url de la note
+  const myNotes = await note.find({ userId: req.params.id });
   if (!myNotes)
     return res
       .status(204)

@@ -57,17 +57,28 @@ exports.createNote = async (req, res, next) => {
 
 // Modifier une publication
 exports.modifyNote = async (req, res, next) => {
+  // on vérifie que l'id est correct
   if (!req?.params?.id) {
     return res.status(400).json({ meesage: "L'ID du post est nécessaire" });
   }
+  // on recherche la note associé à l'id
   const Note = await note.findOne({ _id: req.params.id }).exec();
   console.log("Note", Note);
+  // on isole l'userId
   const userId = req.userId;
   console.log("userId", userId);
   try {
+    // si l'userId corresponde a l'userId de la note on procède
     if (userId === Note.userId) {
-      if (req.body?.description) Note.description = req.body.description;
-      const result = await Note.save();
+      console.log("continue");
+      const result = await note.updateOne({
+        userId: req.userId,
+        description: req.body.description,
+        imageUrl: `${req.protocol}://${req.get("host")}/images/${
+          req.file.filename
+        }`,
+      });
+      console.log("and the result is ", result);
       res.json(result);
     }
   } catch (error) {
@@ -94,41 +105,40 @@ exports.deleteNote = async (req, res, next) => {
 
 // Liker une publication
 exports.like = async (req, res, next) => {
-  const Note = await note.findOne({ _id: req.params.id }).exec();
+  const Note = await note.findOne({ _id: req.params.id });
   const like = req.body.like;
   const user = req.body.userId;
   try {
     // Cas ou l'user like
-    if (like == 1) {
-      // Vérifications
-      if (!Note.usersLiked.includes(user)) {
-        Note.like++;
-        Note.usersLiked.push(user);
-      }
+    // Vérifications
+    if (!Note.usersLiked.includes(user)) {
+      Note.like++;
+      Note.usersLiked.push(user);
+      console.log("add", Note);
     }
     // Si l'utilisateur retire son évaluation
-    if (like == 0) {
-      // S'il retire un like
-      if (Note.usersLiked.includes(user)) {
-        Note.like--;
-        const thisUser = Note.usersLiked.indexOf(user);
-        Note.usersLiked.splice(thisUser, 1);
-      }
+    else {
+      Note.like--;
+      const thisUser = Note.usersLiked.indexOf(user);
+      Note.usersLiked.splice(thisUser, 1);
+      console.log("delete", Note);
     }
     // Mis à jour
-    const result = await Note.updateOne(
+    await note.updateOne(
       { _id: req.params.id },
       {
         usersLiked: Note.usersLiked,
         like: Note.usersLiked.length,
       }
     );
+    const result = await note.findOne({ _id: req.params.id });
+    console.log("result", result);
     // Sauvegarde de la MAJ
-    Note.save();
     res.status(201).json({
       message: "L'évaluation de la publication à bien été prise en compte",
     });
   } catch (error) {
+    console.error(error);
     res.status(400).json({ error });
   }
 };

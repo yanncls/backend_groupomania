@@ -8,6 +8,7 @@ const userSchema = mongoose.Schema({
   name: { type: String, required: false },
   surname: { type: String, required: false },
   bio: { type: String, required: false },
+  picture: { type: String, required: false },
 });
 
 userSchema.plugin(uniqueValidator);

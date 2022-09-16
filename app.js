@@ -18,7 +18,7 @@ const noteRoutes = require("./routes/note");
 
 // mongodb connect
 mongoose
-  .connect(`${process.env.MONGO_DB_ACCESS}`, {
+  .connect(`mongodb+srv://${process.env.MONGO_DB}`, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })

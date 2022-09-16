@@ -106,27 +106,26 @@ exports.getOneUser = async (req, res, next) => {
   }
 };
 
-// Ajout d'informations nom et prénom
+// Ajout d'informations nom et prénom et picture
 exports.modifyProfil = async (req, res, next) => {
-  // const myUser = req.params.userId;
-  // console.log("myUser", myUser);
   const User = await user.findOne({ _id: req.params.id }).exec();
+  // on vérifie que l'id est correct
   if (!req?.params?.id) {
     return res
       .status(400)
       .json({ message: "L'ID de l'utilisateur est nnécessaire" });
   }
-
   console.log("user is", User);
   try {
     // vérification de l'utilisateur dans le backend pour accéder aux modifs ?
     // à faire
+    if (req.body?.username) User.user = req.body.username;
     if (req.body?.name) User.name = req.body.name;
     if (req.body?.email) User.email = req.body.email;
     if (req.body?.surname) User.surname = req.body.surname;
     if (req.body?.bio) User.bio = req.body.bio;
     const result = await User.save();
-    console.log("result iss", result);
+    console.log("result is", result);
     res.json(result);
   } catch (error) {
     res.status(400).json({ message: "gros probleme" });

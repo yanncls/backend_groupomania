@@ -68,7 +68,7 @@ exports.modifyNote = async (req, res, next) => {
   const userId = req.userId;
   console.log("userId", userId);
   try {
-    // si l'userId corresponde a l'userId de la note on procède
+    // si l'userId correspond a l'userId de la note on procède
     if (userId === Note.userId) {
       console.log("continue");
       const result = await note.updateOne({

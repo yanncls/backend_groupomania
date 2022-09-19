@@ -6,6 +6,7 @@ const noteSchema = mongoose.Schema({
   imageUrl: { type: String, required: false },
   like: { type: Number, default: 0, required: false },
   usersLiked: { type: [], required: false },
+  date: { type: String, required: false },
 });
 
 module.exports = mongoose.model("Note", noteSchema);

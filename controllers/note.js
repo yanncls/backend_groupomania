@@ -42,6 +42,7 @@ exports.createNote = async (req, res, next) => {
     const result = await note.create({
       userId: req.userId,
       description: req.body.description,
+      date: req.body.date,
       like: 0,
       usersLiked: [],
       imageUrl: `${req.protocol}://${req.get("host")}/images/${

@@ -1,5 +1,6 @@
 const note = require("../models/Note");
 const fs = require("fs");
+const user = require("../models/user");
 // const user = require("../models/User");
 
 //  afficher les publications
@@ -42,7 +43,6 @@ exports.createNote = async (req, res, next) => {
     const result = await note.create({
       userId: req.userId,
       description: req.body.description,
-      date: req.body.date,
       like: 0,
       usersLiked: [],
       imageUrl: `${req.protocol}://${req.get("host")}/images/${
@@ -69,19 +69,23 @@ exports.modifyNote = async (req, res, next) => {
   const userId = req.userId;
   console.log("userId", userId);
   try {
-    // si l'userId correspond a l'userId de la note on procède
-    if (userId === Note.userId) {
-      console.log("continue");
-      const result = await note.updateOne({
-        userId: req.userId,
+    // vérifier si l'userId correspond
+    if (req.isAdmin !== true && userId !== Note.userId) {
+      res.status(401).json({ message: "Vous n'êtes pas autorisé" });
+      return;
+    }
+    console.log("continue");
+    const result = await note.updateOne(
+      { _id: req.params.id },
+      {
         description: req.body.description,
         imageUrl: `${req.protocol}://${req.get("host")}/images/${
-          req.file.filename
+          req.file?.filename
         }`,
-      });
-      console.log("and the result is ", result);
-      res.json(result);
-    }
+      }
+    );
+    console.log("and the result is ", result);
+    res.json(result);
   } catch (error) {
     res.status(400).json({ error });
   }
@@ -94,7 +98,7 @@ exports.deleteNote = async (req, res, next) => {
     if (!Note) {
       return res.status(400).json({ message: "Publication inexistante" });
     }
-    if (req.userId != Note.userId) {
+    if (req.isAdmin !== true && req.userId !== Note.userId) {
       return res.status(401).json({ message: "Requête non autorisé" });
     }
     Note.deleteOne({ _id: req.params.id });

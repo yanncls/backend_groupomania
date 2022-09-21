@@ -24,8 +24,7 @@ exports.signup = (req, res, next) => {
           email: req.body.email,
           password: hash,
           user: req.body.user,
-          name: req.body.name,
-          surname: req.body.surname,
+          isAdmin: false,
         });
         console.log(myUser);
 
@@ -67,8 +66,12 @@ exports.login = (req, res, next) => {
           res.status(200).json({
             // création d'un token pour sécurisé le compte
             userId: user._id,
+            isAdmin: user.isAdmin,
             token: jwt.sign(
-              { userId: user._id },
+              {
+                userId: user._id,
+                isAdmin: user.isAdmin,
+              },
               process.env.ACCESS_TOKEN_SECRET,
               { expiresIn: "24h" }
             ),
@@ -80,7 +83,7 @@ exports.login = (req, res, next) => {
 };
 
 // Récupération des infos du compte
-exports.getAProfil = async (req, res, next) => {
+exports.getMyProfil = async (req, res, next) => {
   const userId = await req.body.userId;
   try {
     const User = await user.findOne({ _id: userId });
@@ -94,7 +97,7 @@ exports.getAProfil = async (req, res, next) => {
 };
 
 exports.getOneUser = async (req, res, next) => {
-  const userId = await req.params.id;
+  const userId = req.params.id;
   console.log(userId);
   try {
     const User = await user.findOne({ _id: userId });
@@ -108,50 +111,28 @@ exports.getOneUser = async (req, res, next) => {
 
 // Ajout d'informations nom et prénom et picture
 exports.modifyProfil = async (req, res, next) => {
-  // on vérifie que l'id est correct
-  if (!req?.params?.id) {
-    return res
-      .status(400)
-      .json({ message: "L'ID de l'utilisateur est nécessaire" });
-  }
-  const User = await user.findOne({ _id: req.params.id }).exec();
-  console.log("update this user", User);
-  const userId = User._id;
-  const monUserId = userId.toString();
-
   try {
-    // vérification de l'utilisateur dans le backend pour accéder aux modifs ?
-    // à faire
-    if (req.params.id === monUserId) {
-      console.log("continue try");
-      // PASSER L'USER ID DANS L UPDATE
-      const result = await user.updateOne({
-        // _id: req.body.userId,
+    const User = await user.findOne({ _id: req.userId });
+    // console.log(User);
+    // console.log("continue try");
+    // PASSER L'USER ID DANS L UPDATE
+    const result = await user.updateOne(
+      { _id: req.userId },
+      {
         user: req.body.username,
         name: req.body.name,
         email: req.body.email,
         surname: req.body.surname,
         bio: req.body.bio,
         picture: `${req.protocol}://${req.get("host")}/images/${
-          req.file.filename
+          req.file?.filename
         }`,
-      });
-      console.log("data recu");
-      // }
-      console.log("and the result is ", result);
-      res.json(result);
-      console.log(User);
-      // }
-      // if (req.body?.username) User.user = req.body.username;
-      // if (req.body?.name) User.name = req.body.name;
-      // if (req.body?.email) User.email = req.body.email;
-      // if (req.body?.surname) User.surname = req.body.surname;
-      // if (req.body?.bio) User.bio = req.body.bio;
-      // const result = await User.save();
-      // console.log("result is", result);
-      // res.json(result);
-    }
+      }
+    );
+    console.log("data recu");
+    console.log("and the result is ", result);
+    res.json(result);
   } catch (error) {
-    res.status(400).json({ message: "gros probleme" });
+    res.status(400).json({ message: "gros probleme", error });
   }
 };

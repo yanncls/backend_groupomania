@@ -8,8 +8,8 @@ Exécuter la commande `npm init` pour initialiser et donner comme point d'entré
 
 Exécuter ensuite la commande `npm install` pour installer toutes les dépendances de l'API
 
-Créer un fichier .env contenant l'url du serveur MongoDB ayant pour nom `MONGO_DB="votre_database"`
-Ajouter une clé secrète pour authentifier les token ayant pour nom `ACCESS_TOKEN_SECRET="votre_cle_screte"`
+Créer un fichier .env contenant:
+`MONGO_DB = "yannclsgo:G0dtk11QW1RYt0pq@groupomania.zpi25.mongodb.net/test" ACCESS_TOKEN_SECRET='RANDOM_TOKEN_SECRET' S3CRET_SESSION='RANDOM_SESSION_SECRET'`
 
 Démarrer le server avec la commande `node server`
 ou `nodemon server`

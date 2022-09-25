@@ -112,23 +112,14 @@ exports.getOneUser = async (req, res, next) => {
 // Ajout d'informations nom et prénom et picture
 exports.modifyProfil = async (req, res, next) => {
   try {
-    const User = await user.findOne({ _id: req.userId });
-    // console.log(User);
-    // console.log("continue try");
+    const newData = { ...req.body };
+    if (req.file) {
+      newData.picture = `${req.protocol}://${req.get("host")}/images/${
+        req.file?.filename
+      }`;
+    }
     // PASSER L'USER ID DANS L UPDATE
-    const result = await user.updateOne(
-      { _id: req.userId },
-      {
-        user: req.body.username,
-        name: req.body.name,
-        email: req.body.email,
-        surname: req.body.surname,
-        bio: req.body.bio,
-        picture: `${req.protocol}://${req.get("host")}/images/${
-          req.file?.filename
-        }`,
-      }
-    );
+    const result = await user.updateOne({ _id: req.userId }, newData);
     console.log("data recu");
     console.log("and the result is ", result);
     res.json(result);

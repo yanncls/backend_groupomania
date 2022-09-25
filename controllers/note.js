@@ -1,13 +1,9 @@
 const note = require("../models/Note");
 const fs = require("fs");
 const user = require("../models/user");
-// const user = require("../models/User");
 
 //  afficher les publications
 exports.getAllNote = async (req, res, next) => {
-  // if (!req.userId) {
-  //   res.status(401).json({ message: "vous n'êtes pas authentifié" });
-  // }
   const notes = await note.find();
   if (!notes) return res.status(204).json({ message: "aucun post trouvé" });
   res.json(notes);
@@ -58,32 +54,31 @@ exports.createNote = async (req, res, next) => {
 
 // Modifier une publication
 exports.modifyNote = async (req, res, next) => {
-  // on vérifie que l'id est correct
-  if (!req?.params?.id) {
-    return res.status(400).json({ meesage: "L'ID du post est nécessaire" });
-  }
-  // on recherche la note associé à l'id
-  const Note = await note.findOne({ _id: req.params.id }).exec();
-  console.log("Note", Note);
-  // on isole l'userId
-  const userId = req.userId;
-  console.log("userId", userId);
   try {
+    // on vérifie que l'id est correct
+    if (!req?.params?.id) {
+      return res.status(400).json({ meesage: "L'ID du post est nécessaire" });
+    }
+    // on recherche la note associé à l'id
+    const Note = await note.findOne({ _id: req.params.id }).exec();
+    console.log("Note", Note);
+    // on isole l'userId
+    const userId = req.userId;
+    console.log("userId", userId);
     // vérifier si l'userId correspond
     if (req.isAdmin !== true && userId !== Note.userId) {
       res.status(401).json({ message: "Vous n'êtes pas autorisé" });
       return;
     }
+    const newData = { ...req.body };
+    if (req.file) {
+      newData.imageUrl = `${req.protocol}://${req.get("host")}/images/${
+        req.file?.filename
+      }`;
+    }
+
     console.log("continue");
-    const result = await note.updateOne(
-      { _id: req.params.id },
-      {
-        description: req.body.description,
-        imageUrl: `${req.protocol}://${req.get("host")}/images/${
-          req.file?.filename
-        }`,
-      }
-    );
+    const result = await note.updateOne({ _id: req.params.id }, newData);
     console.log("and the result is ", result);
     res.json(result);
   } catch (error) {
